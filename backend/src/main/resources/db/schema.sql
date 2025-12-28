@@ -14,20 +14,28 @@ DROP TABLE IF EXISTS shift_config CASCADE;
 -- ========================================
 -- 1. 班次配置表
 -- ========================================
-CREATE TABLE shift_config (
-    id BIGSERIAL PRIMARY KEY,
-    shift_name VARCHAR(50) NOT NULL COMMENT '班次名称',
-    shift_code VARCHAR(20) NOT NULL UNIQUE COMMENT '班次代码',
-    start_time VARCHAR(5) NOT NULL COMMENT '开始时间 HH:mm',
-    end_time VARCHAR(5) NOT NULL COMMENT '结束时间 HH:mm',
-    sort_order INT DEFAULT 0 COMMENT '排序号',
-    status INT DEFAULT 1 COMMENT '状态：1-启用 0-禁用',
-    remark VARCHAR(500) COMMENT '备注',
-    create_by VARCHAR(50) COMMENT '创建人',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_by VARCHAR(50) COMMENT '更新人',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-    deleted INT DEFAULT 0 COMMENT '删除标识：0-未删除 1-已删除'
+-- public.shift_config definition
+
+-- Drop table
+
+-- DROP TABLE public.shift_config;
+
+CREATE TABLE public.shift_config (
+                                     id bigserial NOT NULL,
+                                     shift_name varchar(50) NOT NULL,
+                                     shift_code varchar(20) NOT NULL,
+                                     start_time varchar(5) NOT NULL,
+                                     end_time varchar(5) NOT NULL,
+                                     sort_order int4 DEFAULT 0 NULL,
+                                     status int4 DEFAULT 1 NULL,
+                                     remark varchar(500) NULL,
+                                     create_by varchar(50) NULL,
+                                     create_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                     update_by varchar(50) NULL,
+                                     update_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                     deleted int4 DEFAULT 0 NULL,
+                                     CONSTRAINT shift_config_pkey PRIMARY KEY (id),
+                                     CONSTRAINT shift_config_shift_code_key UNIQUE (shift_code)
 );
 
 COMMENT ON TABLE shift_config IS '班次配置表';
@@ -48,24 +56,31 @@ INSERT INTO shift_config (shift_name, shift_code, start_time, end_time, sort_ord
 -- ========================================
 -- 2. 排班表
 -- ========================================
-CREATE TABLE duty_schedule (
-    id BIGSERIAL PRIMARY KEY,
-    duty_date DATE NOT NULL COMMENT '值班日期',
-    shift_id BIGINT NOT NULL COMMENT '班次ID',
-    shift_name VARCHAR(50) COMMENT '班次名称（冗余字段）',
-    person_id VARCHAR(50) NOT NULL COMMENT '人员ID（来自人员库）',
-    person_name VARCHAR(50) NOT NULL COMMENT '人员姓名',
-    person_gender VARCHAR(10) COMMENT '人员性别',
-    dept_id VARCHAR(50) COMMENT '部门ID',
-    dept_name VARCHAR(100) COMMENT '部门名称',
-    status INT DEFAULT 1 COMMENT '状态：1-正常 0-取消',
-    remark VARCHAR(500) COMMENT '备注',
-    create_by VARCHAR(50) COMMENT '创建人',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_by VARCHAR(50) COMMENT '更新人',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-    deleted INT DEFAULT 0 COMMENT '删除标识：0-未删除 1-已删除',
-    CONSTRAINT uk_schedule UNIQUE (duty_date, shift_id, person_id)
+-- public.duty_schedule definition
+
+-- Drop table
+
+-- DROP TABLE public.duty_schedule;
+
+CREATE TABLE public.duty_schedule (
+                                      id bigserial NOT NULL,
+                                      duty_date date NOT NULL,
+                                      shift_id int8 NOT NULL,
+                                      shift_name varchar(50) NULL,
+                                      person_id varchar(50) NOT NULL,
+                                      person_name varchar(50) NOT NULL,
+                                      person_gender varchar(10) NULL,
+                                      dept_id varchar(50) NULL,
+                                      dept_name varchar(100) NULL,
+                                      status int4 DEFAULT 1 NULL,
+                                      remark varchar(500) NULL,
+                                      create_by varchar(50) NULL,
+                                      create_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                      update_by varchar(50) NULL,
+                                      update_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                      deleted int4 DEFAULT 0 NULL,
+                                      CONSTRAINT duty_schedule_pkey PRIMARY KEY (id),
+                                      CONSTRAINT uk_schedule UNIQUE (duty_date, shift_id, person_id)
 );
 
 COMMENT ON TABLE duty_schedule IS '排班表';
@@ -88,23 +103,25 @@ CREATE INDEX idx_schedule_dept ON duty_schedule(dept_id);
 -- ========================================
 -- 3. 记录模板配置表
 -- ========================================
-CREATE TABLE record_template (
-    id BIGSERIAL PRIMARY KEY,
-    category_name VARCHAR(100) NOT NULL COMMENT '类别名称',
-    category_code VARCHAR(50) NOT NULL UNIQUE COMMENT '类别代码',
-    field_description VARCHAR(500) COMMENT '字段描述/说明',
-    default_value TEXT COMMENT '默认值',
-    input_type VARCHAR(20) DEFAULT 'TEXT' COMMENT '输入类型：TEXT-文本框 TEXTAREA-多行文本 SELECT-下拉框',
-    options TEXT COMMENT '选项配置（JSON格式），用于SELECT类型',
-    is_required INT DEFAULT 0 COMMENT '是否必填：1-必填 0-非必填',
-    sort_order INT DEFAULT 0 COMMENT '排序号',
-    status INT DEFAULT 1 COMMENT '状态：1-启用 0-禁用',
-    remark VARCHAR(500) COMMENT '备注',
-    create_by VARCHAR(50) COMMENT '创建人',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_by VARCHAR(50) COMMENT '更新人',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-    deleted INT DEFAULT 0 COMMENT '删除标识：0-未删除 1-已删除'
+CREATE TABLE public.record_template (
+                                        id bigserial NOT NULL,
+                                        category_name varchar(100) NOT NULL,
+                                        category_code varchar(50) NOT NULL,
+                                        field_description varchar(500) NULL,
+                                        default_value text NULL,
+                                        input_type varchar(20) DEFAULT 'TEXT'::character varying NULL,
+                                        "options" text NULL,
+                                        is_required int4 DEFAULT 0 NULL,
+                                        sort_order int4 DEFAULT 0 NULL,
+                                        status int4 DEFAULT 1 NULL,
+                                        remark varchar(500) NULL,
+                                        create_by varchar(50) NULL,
+                                        create_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                        update_by varchar(50) NULL,
+                                        update_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                        deleted int4 DEFAULT 0 NULL,
+                                        CONSTRAINT record_template_category_code_key UNIQUE (category_code),
+                                        CONSTRAINT record_template_pkey PRIMARY KEY (id)
 );
 
 COMMENT ON TABLE record_template IS '记录模板配置表';
@@ -129,21 +146,28 @@ INSERT INTO record_template (category_name, category_code, field_description, de
 -- ========================================
 -- 4. 值班记录表
 -- ========================================
-CREATE TABLE duty_record (
-    id BIGSERIAL PRIMARY KEY,
-    schedule_id BIGINT NOT NULL COMMENT '排班ID，关联duty_schedule表',
-    duty_date DATE NOT NULL COMMENT '值班日期',
-    shift_id BIGINT NOT NULL COMMENT '班次ID',
-    shift_name VARCHAR(50) COMMENT '班次名称',
-    person_id VARCHAR(50) NOT NULL COMMENT '人员ID',
-    person_name VARCHAR(50) NOT NULL COMMENT '人员姓名',
-    record_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '记录填写时间',
-    status INT DEFAULT 1 COMMENT '状态：1-正常 0-作废',
-    create_by VARCHAR(50) COMMENT '创建人',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_by VARCHAR(50) COMMENT '更新人',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-    deleted INT DEFAULT 0 COMMENT '删除标识：0-未删除 1-已删除'
+-- public.duty_record definition
+
+-- Drop table
+
+-- DROP TABLE public.duty_record;
+
+CREATE TABLE public.duty_record (
+                                    id bigserial NOT NULL,
+                                    schedule_id int8 NOT NULL,
+                                    duty_date date NOT NULL,
+                                    shift_id int8 NOT NULL,
+                                    shift_name varchar(50) NULL,
+                                    person_id varchar(50) NOT NULL,
+                                    person_name varchar(50) NOT NULL,
+                                    record_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                    status int4 DEFAULT 1 NULL,
+                                    create_by varchar(50) NULL,
+                                    create_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                    update_by varchar(50) NULL,
+                                    update_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                    deleted int4 DEFAULT 0 NULL,
+                                    CONSTRAINT duty_record_pkey PRIMARY KEY (id)
 );
 
 COMMENT ON TABLE duty_record IS '值班记录表';
@@ -165,16 +189,17 @@ CREATE INDEX idx_record_schedule ON duty_record(schedule_id);
 -- ========================================
 -- 5. 值班记录明细表
 -- ========================================
-CREATE TABLE duty_record_detail (
-    id BIGSERIAL PRIMARY KEY,
-    record_id BIGINT NOT NULL COMMENT '值班记录ID，关联duty_record表',
-    template_id BIGINT NOT NULL COMMENT '模板ID，关联record_template表',
-    category_name VARCHAR(100) NOT NULL COMMENT '类别名称',
-    category_code VARCHAR(50) NOT NULL COMMENT '类别代码',
-    record_content TEXT COMMENT '记录内容',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-    deleted INT DEFAULT 0 COMMENT '删除标识：0-未删除 1-已删除'
+CREATE TABLE public.duty_record_detail (
+                                           id bigserial NOT NULL,
+                                           record_id int8 NOT NULL,
+                                           template_id int8 NOT NULL,
+                                           category_name varchar(100) NOT NULL,
+                                           category_code varchar(50) NOT NULL,
+                                           record_content text NULL,
+                                           create_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                           update_time timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+                                           deleted int4 DEFAULT 0 NULL,
+                                           CONSTRAINT duty_record_detail_pkey PRIMARY KEY (id)
 );
 
 COMMENT ON TABLE duty_record_detail IS '值班记录明细表';
@@ -190,31 +215,3 @@ CREATE INDEX idx_detail_record ON duty_record_detail(record_id);
 CREATE INDEX idx_detail_template ON duty_record_detail(template_id);
 CREATE UNIQUE INDEX uk_detail_record_template ON duty_record_detail(record_id, template_id) WHERE deleted = 0;
 
--- ========================================
--- 查询视图：值班记录列表视图
--- ========================================
-CREATE OR REPLACE VIEW v_duty_record_list AS
-SELECT
-    dr.id,
-    dr.duty_date,
-    dr.person_name,
-    sc.start_time AS shift_start_time,
-    sc.end_time AS shift_end_time,
-    dr.record_time,
-    string_agg(
-        '[' || drd.category_name || '] ' || COALESCE(drd.record_content, ''),
-        '；' ORDER BY rt.sort_order
-    ) AS work_log_summary
-FROM duty_record dr
-LEFT JOIN shift_config sc ON dr.shift_id = sc.id
-LEFT JOIN duty_record_detail drd ON dr.id = drd.record_id AND drd.deleted = 0
-LEFT JOIN record_template rt ON drd.template_id = rt.id AND rt.deleted = 0
-WHERE dr.deleted = 0
-GROUP BY dr.id, dr.duty_date, dr.person_name, sc.start_time, sc.end_time, dr.record_time
-ORDER BY dr.duty_date DESC, sc.start_time;
-
-COMMENT ON VIEW v_duty_record_list IS '值班记录列表视图';
-
--- ========================================
--- 初始化完成
--- ========================================
