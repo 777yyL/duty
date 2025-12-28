@@ -34,7 +34,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
                         // 如果请求的是根路径，返回 index.html
                         if ("".equals(normalizedPath)) {
-                            return new ClassPathResource("/static/index.html");
+                            Resource indexResource = location.createRelative("index.html");
+                            if (indexResource.exists() && indexResource.isReadable()) {
+                                return indexResource;
+                            }
+                            return null;
                         }
 
                         // 如果请求的是 index.html，直接返回
@@ -43,7 +47,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                             if (requestedResource.exists() && requestedResource.isReadable()) {
                                 return requestedResource;
                             }
-                            return new ClassPathResource("/static/index.html");
+                            return null;
                         }
 
                         // 如果请求的是 assets 目录下的资源（静态JS/CSS文件等）
@@ -74,7 +78,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
                         // 对于所有其他请求（前端路由），返回 index.html
                         // 这样 Vue Router 才能处理前端路由
-                        return new ClassPathResource("/static/index.html");
+                        Resource indexResource = location.createRelative("index.html");
+                        if (indexResource.exists() && indexResource.isReadable()) {
+                            return indexResource;
+                        }
+                        return null;
                     }
 
                     /**
